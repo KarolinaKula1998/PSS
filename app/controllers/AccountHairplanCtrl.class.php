@@ -1,0 +1,55 @@
+<?php
+
+namespace app\controllers;
+
+use PDOException;
+use core\App;
+use core\Utils;
+
+class AccountHairplanCtrl
+{
+    private $user;
+    public function action_accountHairplan()
+    {
+        // 1. walidacja id osoby do edycji
+        $this->user = $_SESSION['user'];
+
+        if ($this->user) {
+            $this->getData();
+            $this->generateView();
+        } else {
+            // Obsługa przypadku, gdy rekord nie istnieje
+            Utils::addErrorMessage("Nie znaleziono użytkownika o podanym ID.");
+            App::getRouter()->redirectTo('loginShow');
+        }
+    }
+
+    private function getData()
+    {
+        try {
+            $records = App::getDB()->select("results", [
+                "[>]porositytypes (p)" => ["porosity_type_id" => "id"]
+            ], [
+                "results.id",
+                "results.score_result",
+                "results.created_at",
+                "results.porosity_type_id",
+                "p.name (porosity_name)"
+            ], ["user_id" => $this->user['id'], "ORDER" => ["created_at" => "DESC"], "LIMIT" => 1]);
+        } catch (PDOException $e) {
+            Utils::addErrorMessage('Wystąpił błąd podczas pobierania rekordów');
+            if (App::getConf()->debug) Utils::addErrorMessage($e->getMessage());
+        }
+        if (isset($records[0])) {
+            App::getSmarty()->assign('currentPlan', $records[0]);
+        } else {
+            App::getSmarty()->assign('currentPlan', null); // Przypisz null, jeśli nie ma rekordu
+        }
+    }
+
+    private function generateView()
+    {
+        App::getSmarty()->assign('currentView', 'hairplan');
+        App::getSmarty()->display('AccountViews/AccountHairplan.tpl');
+    }
+}
