@@ -1,0 +1,29 @@
+.users-table {
+  tbody {
+    background-color: #fff;
+  }
+}
+
+.pagination {
+  display: inline-block;
+  margin-top: 24px;
+}
+
+.pagination a {
+  color: black;
+  float: left;
+  padding: 8px 16px;
+  text-decoration: none;
+  border: 1px solid #ddd;
+}
+
+.pagination a.active,
+.pure-button.active {
+  background-color: #4caf50;
+  color: white;
+  border: 1px solid #4caf50;
+}
+
+.pagination a:hover:not(.active) {
+  background-color: #ddd;
+}
